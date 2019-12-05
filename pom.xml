@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.msh</groupId>
+    <artifactId>msh-starter</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0.0</version>
+    <modules>
+        <module>msh-starter-id-generate</module>
+        <module>msh-starter-common</module>
+        <module>msh-starter-redis</module>
+        <module>msh-starter-common-web</module>
+    </modules>
+
+
+    <!-- Spring Boot 启动父依赖 -->
+    <parent>
+        <groupId>com.msh</groupId>
+        <artifactId>msh-frame</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <properties>
+        <msh.frame.version>1.0.0</msh.frame.version>
+        <msh.starter.version>1.0.0</msh.starter.version>
+    </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.msh</groupId>
+                <artifactId>msh-starter-common</artifactId>
+                <version>${msh.starter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.msh</groupId>
+                <artifactId>msh-frame-interface</artifactId>
+                <version>${msh.frame.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.msh</groupId>
+                <artifactId>msh-frame-common</artifactId>
+                <version>${msh.frame.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.msh</groupId>
+                <artifactId>msh-frame-client</artifactId>
+                <version>${msh.frame.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

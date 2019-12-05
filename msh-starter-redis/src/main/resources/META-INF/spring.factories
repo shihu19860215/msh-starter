@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.msh.starter.redis.config.RedisAutoConfiguration
