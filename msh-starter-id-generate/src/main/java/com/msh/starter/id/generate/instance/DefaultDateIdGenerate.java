@@ -6,8 +6,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * 默认实现的带日期的id生成器
+ * 每秒最多生成1000个id
  * 通过获取ip后两位来区别唯一服务
- * 如果无法
+ * 如果无法满足，请自己构建AbstractDateIdGenerate
  */
 @Component
 public class DefaultDateIdGenerate extends AbstractDateIdGenerate {

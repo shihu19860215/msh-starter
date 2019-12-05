@@ -7,7 +7,7 @@ import com.msh.frame.interfaces.IdGenerateable;
  * 注 :
  *
  * 根据系统自己设置 serviceIdBitCount，indexBitCount
- * serviceIdBitCount indexBitCount 加起来不要超过 28
+ * serviceIdBitCount indexBitCount 加起来24位可以使用20年，每多一位年数除2
  * serviceIdBitCount为服务id所占位数
  * 默认4位(0-15)
  * indexBitCount为每秒内生成最大数
@@ -22,15 +22,16 @@ import com.msh.frame.interfaces.IdGenerateable;
  * 给需要分库分表的id 使用独立的id生成器对象
  * 保证id取模后的连续性
  */
-public abstract class AbstractDefaultIdGenerate implements IdGenerateable {
+public abstract class AbstractIdGenerate implements IdGenerateable {
     /**
      * 服务器id所占位数
      */
-    private int serviceIdBitCount=4;
+    private int serviceIdBitCount;
     /**
+     * 不能大约32
      * 每毫秒生成id数
      */
-    private int indexBitCount=14;
+    private int indexBitCount;
     /**
      * 2018-01-01 00:00:00
      */
@@ -43,7 +44,7 @@ public abstract class AbstractDefaultIdGenerate implements IdGenerateable {
     /**
      * 服务器id位移后的值
      */
-    private static volatile Long serviceIdBitShiftValue;
+    private static volatile long serviceIdBitShiftValue ;
     /**
      * 最后一次index为0时的时间戳
      */
@@ -53,7 +54,7 @@ public abstract class AbstractDefaultIdGenerate implements IdGenerateable {
      * 保证indexBitCount几个比特位一直处于自增状态
      * 可在分库，分表时独立生成该对象来获取id
      */
-    private volatile int lastIndexBit=0;
+    private volatile long lastIndexBit=0;
     /**
      * 时间戳需要的位移位数
      */
@@ -68,16 +69,21 @@ public abstract class AbstractDefaultIdGenerate implements IdGenerateable {
     private int indexBit;
 
 
-    public AbstractDefaultIdGenerate() {
-        this.currentTimeMillisDiffBitCount=serviceIdBitCount+indexBitCount;
-        this.indexBit=(0x01<<indexBitCount)-1;
+    public AbstractIdGenerate() {
+        this(4 ,14);
     }
 
-    public AbstractDefaultIdGenerate(int serviceIdBitCount, int indexBitCount) {
+    /**
+     *
+     * @param serviceIdBitCount 服务器id占用bit 不能大于32
+     * @param indexBitCount 每秒生成id数量占用bit 不能大于32
+     */
+    public AbstractIdGenerate(int serviceIdBitCount, int indexBitCount) {
         this.serviceIdBitCount = serviceIdBitCount;
         this.indexBitCount = indexBitCount;
-        this.currentTimeMillisDiffBitCount=serviceIdBitCount+indexBitCount;
-        this.indexBit=(0x01<<indexBitCount)-1;
+        this.currentTimeMillisDiffBitCount = serviceIdBitCount + indexBitCount;
+        this.indexBit=(1<<indexBitCount)-1;
+        this.init();
     }
 
     @Override
@@ -87,7 +93,7 @@ public abstract class AbstractDefaultIdGenerate implements IdGenerateable {
             lastCurrentTimeMillis=now;
             i=0;
             long destID =  now- ID_BEGIN_TIME;
-            destID = (destID << currentTimeMillisDiffBitCount) + lastIndexBit+ getServiceIdBitShiftValue() ;
+            destID = (destID << currentTimeMillisDiffBitCount) + lastIndexBit+ serviceIdBitShiftValue;
             lastIndexBit++;
             if(lastIndexBit>indexBit){
                 lastIndexBit=0;
@@ -101,8 +107,8 @@ public abstract class AbstractDefaultIdGenerate implements IdGenerateable {
             }
             lastCurrentTimeMillis=now;
         }
-        long destID =  now- ID_BEGIN_TIME;
-        destID = (destID << currentTimeMillisDiffBitCount) + lastIndexBit +getServiceIdBitShiftValue();
+        long destID =  now - ID_BEGIN_TIME;
+        destID = (destID << currentTimeMillisDiffBitCount) + lastIndexBit + serviceIdBitShiftValue;
         lastIndexBit++;
         if(lastIndexBit>indexBit){
             lastIndexBit=0;
@@ -110,28 +116,22 @@ public abstract class AbstractDefaultIdGenerate implements IdGenerateable {
         return destID;
     }
 
-    private Long getServiceIdBitShiftValue(){
-        if(null==serviceIdBitShiftValue){
-            initServiceIdAndServiceIdBitShiftValue();
-        }
-        return serviceIdBitShiftValue;
-    }
 
-    private Integer initServiceIdAndServiceIdBitShiftValue(){
-        if(serviceId==null){
+    private void init(){
+        if(serviceId == null){
             synchronized (this.getClass()){
-                if(serviceId==null){
-                    Integer id=getServerId();
-                    if(null==id){
+                if(serviceId == null){
+                    Integer id = getServerId();
+                    if(null == id){
                         throw new RuntimeException("获取服务器Id失败");
                     }
-                    int serverIdBitCalculate = (1 << (serviceIdBitCount+1)) -1 ;
-                    serviceId = id & serverIdBitCalculate;
-                    serviceIdBitShiftValue=new Long(serviceId << indexBitCount);
+                    //限制serviceId的位数
+                    long serverIdBitCalculate = (1L << serviceIdBitCount) -1 ;
+                    serviceId = id & ((int) serverIdBitCalculate);
+                    serviceIdBitShiftValue = ((long)serviceId) << indexBitCount;
                 }
             }
         }
-        return serviceId;
     }
 
 

@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- * LONG类型正数最大个数19个
+ * LONG类型正数最大个数19个，最大正整数9223372036854775807
  * 生成带有年月日开头的id
  * 日期6位,当天秒数5位，服务器id 1位 自增数字7位
  * 进过测试(100个线程生成5000万个id，时间所需5033毫秒)
@@ -52,7 +52,7 @@ public abstract class AbstractDateIdGenerate implements IdGenerateable {
     /**
      * 服务器id位移后的值
      */
-    private static volatile Long serviceIdBitShiftValue;
+    private static volatile long serviceIdBitShiftValue;
 
     /**
      * 最后一次index为0时的当天经过秒数
@@ -97,7 +97,7 @@ public abstract class AbstractDateIdGenerate implements IdGenerateable {
             throw new RuntimeException("生成日期头出错");
         }
         dateFront = dayLong;
-        initServiceIdAndServiceIdBitShiftValue();
+        init();
         updateLastPassDaySecondThread();
     }
 
@@ -159,21 +159,19 @@ public abstract class AbstractDateIdGenerate implements IdGenerateable {
     }
 
 
-    private Integer initServiceIdAndServiceIdBitShiftValue(){
-        if(serviceId==null){
+    private void init(){
+        if(serviceId == null){
             synchronized (this.getClass()){
-                if(serviceId==null){
-                    Integer id=getServerId();
-                    if(null==id){
+                if(serviceId == null){
+                    Integer id = getServerId();
+                    if(null == id){
                         throw new RuntimeException("获取服务器Id失败");
                     }
-                    int serverIdBitCalculate = serviceIdNumberMultiple -1 ;
-                    serviceId = id % serverIdBitCalculate;
-                    serviceIdBitShiftValue=new Long(serviceId * indexNumberMultiple);
+                    serviceId = id % serviceIdNumberMultiple;
+                    serviceIdBitShiftValue = serviceId * indexNumberMultiple;
                 }
             }
         }
-        return serviceId;
     }
 
 
