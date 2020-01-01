@@ -60,4 +60,18 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+
+    <distributionManagement>
+        <repository>
+            <id>release</id>
+            <name>Release Repository</name>
+            <url>${ReleaseRepository}</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshot</id>
+            <name>Snapshot Repository</name>
+            <url>${SnapshotRepository}</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
