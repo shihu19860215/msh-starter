@@ -1,5 +1,7 @@
 package com.msh.starter.common.base;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.msh.frame.client.base.BasePO;
 import com.msh.frame.client.base.BaseQO;
 import com.msh.frame.client.base.BaseServiceImpl;
@@ -7,6 +9,7 @@ import com.msh.frame.client.common.CommonResult;
 import com.msh.frame.interfaces.ICache;
 import com.msh.frame.interfaces.ICacheManager;
 import com.msh.starter.common.instance.ApplicationContextUtil;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.*;
 
@@ -116,10 +119,13 @@ public abstract class BasePermanentCacheServiceImpl<T extends BasePO, Q extends 
             commonResult = super.list(param);
             if(commonResult.isSuccess()){
                 getCache().put(key,commonResult,NO_NULL_EXPIRE_SECOND);
-                if(null!=param.getPage()){
-                    String countKey = COUNT_PREFIX + param.toString();
-                    getCache().put(countKey,CommonResult.successReturn(commonResult.getCount()),NO_NULL_EXPIRE_SECOND);
-                }
+                String paramStr = JSON.toJSONString(param);
+                JSONObject jsonObject = JSON.parseObject(paramStr);
+                jsonObject.remove("firstRow");
+                jsonObject.remove("currentPage");
+                jsonObject.remove("pageSize");
+                String countKey = COUNT_PREFIX + jsonObject.toJSONString();
+                getCache().put(countKey,CommonResult.successReturn(commonResult.getCount()),NO_NULL_EXPIRE_SECOND);
             }
         }
         return commonResult;
