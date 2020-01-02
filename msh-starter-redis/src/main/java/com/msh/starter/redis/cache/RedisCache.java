@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 
-public class RedisCache implements ICache {
+public class RedisCache<K,V> implements ICache<K,V> {
     private final RedisTemplate redisTemplate;
     private final String keyPrefix;
 
@@ -21,27 +21,27 @@ public class RedisCache implements ICache {
     }
 
     @Override
-    public Object get(String k) {
-        return redisTemplate.opsForValue().get(keyPrefix+k);
+    public V get(K k) {
+        return (V)redisTemplate.opsForValue().get(keyPrefix+k);
     }
 
     @Override
-    public void put(String k, Object o) {
+    public void put(K k, V o) {
         redisTemplate.opsForValue().set(keyPrefix+k,o);
     }
 
     @Override
-    public void put(String k, Object o, long expireSecond) {
+    public void put(K k, V o, long expireSecond) {
         redisTemplate.opsForValue().set(keyPrefix+k,o,expireSecond,TimeUnit.SECONDS);
     }
 
     @Override
-    public boolean hasKey(String k) {
+    public boolean hasKey(K k) {
         return redisTemplate.hasKey(keyPrefix+k);
     }
 
     @Override
-    public void remove(String k) {
+    public void remove(K k) {
         redisTemplate.delete(keyPrefix+k);
     }
 
@@ -51,13 +51,13 @@ public class RedisCache implements ICache {
         Set<String> set=new HashSet<>();
         Iterator it=c.iterator();
         while(it.hasNext()){
-            set.add(keyPrefix+it.next());
+            set.add(keyPrefix+ String.valueOf(it.next()));
         }
         redisTemplate.delete(set);
     }
 
     @Override
-    public void clearPrefix(String k) {
+    public void clearPrefix(K k) {
         redisTemplate.delete(redisTemplate.keys(keyPrefix+k+"*"));
     }
 

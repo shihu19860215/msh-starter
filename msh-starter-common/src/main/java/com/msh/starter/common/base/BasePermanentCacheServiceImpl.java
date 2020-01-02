@@ -21,7 +21,7 @@ import java.util.*;
  * @param <Q>
  */
 public abstract class BasePermanentCacheServiceImpl<T extends BasePO, Q extends BaseQO> extends BaseServiceImpl<T,Q> {
-    protected ICache<CommonResult> cache;
+    protected ICache<String,CommonResult> cache;
     /**
      * 单条查询缓存
      */
@@ -151,7 +151,7 @@ public abstract class BasePermanentCacheServiceImpl<T extends BasePO, Q extends 
         return super.count(param);
     }
 
-    public ICache<CommonResult> getCache(){
+    public ICache<String,CommonResult> getCache(){
         if(null==cache){
             cache=ApplicationContextUtil.getBean(ICacheManager.class).getCache(this.getClass().getName());
         }

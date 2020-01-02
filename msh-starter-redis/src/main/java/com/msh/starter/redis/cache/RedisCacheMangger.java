@@ -18,7 +18,7 @@ public class RedisCacheMangger implements ICacheManager {
 
 
     @Override
-    public <V> ICache<V> getCache(String name) {
+    public <K,V> ICache<K,V> getCache(String name) {
         if(redisCacheMap.containsKey(name)){
             return redisCacheMap.get(name);
         }

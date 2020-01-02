@@ -1,7 +1,6 @@
 package com.msh.starter.redis.common;
 
-import com.msh.frame.common.common.AbstractDefaultIdGenerate;
-import com.msh.frame.common.common.IdGenerateable;
+import com.msh.frame.interfaces.IdGenerateable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -91,7 +90,7 @@ public class PessimisticRedisLock {
      * @param redisTemplate
      * @param lockKey
      */
-    public PessimisticRedisLock(RedisTemplate redisTemplate, String lockKey, AbstractDefaultIdGenerate idGenerateAbstract) {
+    public PessimisticRedisLock(RedisTemplate redisTemplate, String lockKey, IdGenerateable idGenerateable) {
         this.redisTemplate = redisTemplate;
         keySerializer=redisTemplate.getKeySerializer();
         valueSerializer=redisTemplate.getValueSerializer();
@@ -105,8 +104,8 @@ public class PessimisticRedisLock {
      * @param lockKey
      * @param expireMsecs 锁超时时间
      */
-    public PessimisticRedisLock(RedisTemplate redisTemplate, String lockKey, int expireMsecs, AbstractDefaultIdGenerate idGenerateAbstract) {
-        this(redisTemplate, lockKey,idGenerateAbstract);
+    public PessimisticRedisLock(RedisTemplate redisTemplate, String lockKey, int expireMsecs, IdGenerateable idGenerateable) {
+        this(redisTemplate, lockKey,idGenerateable);
         this.expireMsecs = expireMsecs;
     }
 
@@ -117,8 +116,8 @@ public class PessimisticRedisLock {
      * @param expireMsecs 锁超时时间
      * @param tryTimeout 重试多久来获取锁
      */
-    public PessimisticRedisLock(RedisTemplate redisTemplate, String lockKey, int expireMsecs, int tryTimeout, AbstractDefaultIdGenerate idGenerateAbstract) {
-        this(redisTemplate, lockKey, expireMsecs,idGenerateAbstract);
+    public PessimisticRedisLock(RedisTemplate redisTemplate, String lockKey, int expireMsecs, int tryTimeout, IdGenerateable idGenerateable) {
+        this(redisTemplate, lockKey, expireMsecs,idGenerateable);
         this.tryTimeout = tryTimeout;
         this.tryAlways=false;
     }

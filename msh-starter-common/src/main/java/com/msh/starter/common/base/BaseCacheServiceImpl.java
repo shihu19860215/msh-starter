@@ -23,7 +23,7 @@ public abstract class BaseCacheServiceImpl<T extends BasePO, Q extends BaseQO> e
      * 单条查询缓存
      */
     final private static String GET_PREFIX="get:";
-    protected ICache<CommonResult> cache;
+    protected ICache<String,CommonResult> cache;
     /**
      * 查询到非空数据缓存时间(默认get方法过期秒数),
      * 默认12小时
@@ -73,7 +73,7 @@ public abstract class BaseCacheServiceImpl<T extends BasePO, Q extends BaseQO> e
     }
 
 
-    public ICache<CommonResult> getCache(){
+    public ICache<String,CommonResult> getCache(){
         if(null==cache){
             ICacheManager cacheManager = ApplicationContextUtil.getBean(ICacheManager.class);
             if(null == cacheManager){
