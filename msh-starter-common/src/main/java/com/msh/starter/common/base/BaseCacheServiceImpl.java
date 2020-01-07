@@ -41,8 +41,8 @@ public abstract class BaseCacheServiceImpl<T extends BasePO, Q extends BaseQO> e
     final private static long DEFAULT_GET_EMPTY_EXPIRE_SECOND_TIME=60;
 
     @Override
-    public CommonResult<T> get(long param) {
-        String key=GET_PREFIX+param;
+    public CommonResult<T> get(Q param) {
+        String key=GET_PREFIX+param.getId();
         CommonResult<T> commonResult=getCache().get(key);
         //无需使用haskey判断，因为返回结果已经被CommonResult包装，只要haskey,就不会返回null (redis的value可以存null)
         if(null==commonResult){
@@ -66,8 +66,8 @@ public abstract class BaseCacheServiceImpl<T extends BasePO, Q extends BaseQO> e
     }
 
     @Override
-    public CommonResult<Boolean> delete(long param) {
-        String key=GET_PREFIX+param;
+    public CommonResult<Boolean> delete(Q param) {
+        String key=GET_PREFIX+param.getId();
         getCache().remove(key);
         return super.delete(param);
     }

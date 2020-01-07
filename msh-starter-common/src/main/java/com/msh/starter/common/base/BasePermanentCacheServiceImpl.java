@@ -51,8 +51,8 @@ public abstract class BasePermanentCacheServiceImpl<T extends BasePO, Q extends 
     final private static long NULL_EXPIRE_SECOND=300L;
 
     @Override
-    public CommonResult<T> get(long param) {
-        String key = GET_PREFIX+ param;
+    public CommonResult<T> get(Q param) {
+        String key = GET_PREFIX+ param.getId();
         CommonResult commonResult=getCache().get(key);
         if(null==commonResult){
             commonResult=super.get(param);
@@ -76,8 +76,8 @@ public abstract class BasePermanentCacheServiceImpl<T extends BasePO, Q extends 
     }
 
     @Override
-    public CommonResult<Boolean> delete(long param) {
-        String key = GET_PREFIX+ param;
+    public CommonResult<Boolean> delete(Q param) {
+        String key = GET_PREFIX+ param.getId();
         getCache().remove(key);
         clearListCountCache();
         return super.delete(param);

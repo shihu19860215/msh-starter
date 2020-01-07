@@ -2,6 +2,7 @@ package com.msh.starter.id.generate.instance;
 
 import com.msh.frame.common.util.IpUtil;
 import com.msh.starter.id.generate.abstracts.AbstractDateIdGenerate;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 /**
@@ -10,7 +11,8 @@ import org.springframework.stereotype.Component;
  * 通过获取ip后两位来区别唯一服务
  * 如果无法满足，请自己构建AbstractDateIdGenerate
  */
-@Component
+@Component("dateIdGenerate")
+@Primary
 public class DefaultDateIdGenerate extends AbstractDateIdGenerate {
     public DefaultDateIdGenerate(){
         super(1000,100000);

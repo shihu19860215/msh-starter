@@ -16,7 +16,7 @@ public class RedisConfig {
 
     @Bean
     public RedisSerializer fastJson2JsonRedisSerializer() {
-        ParserConfig.getGlobalInstance().addAccept("com.msh.");
+        ParserConfig.getGlobalInstance().addAccept("com.");
         return new FastJson2JsonRedisSerializer<Object>(Object.class);
     }
 
