@@ -7,7 +7,7 @@
     <groupId>com.msh</groupId>
     <artifactId>msh-starter</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0</version>
+    <version>1.0.0-SNAPSHOT</version>
     <modules>
         <module>msh-starter-id-generate</module>
         <module>msh-starter-common</module>
@@ -24,8 +24,8 @@
     </parent>
 
     <properties>
-        <msh.frame.version>1.0.0</msh.frame.version>
-        <msh.starter.version>1.0.0</msh.starter.version>
+        <msh.frame.version>${parent.version}</msh.frame.version>
+        <msh.starter.version>${project.version}</msh.starter.version>
     </properties>
 
 
