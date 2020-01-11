@@ -1,7 +1,11 @@
 package com.msh.starter.id.generate.abstracts;
 
+import com.msh.frame.client.exception.ServerRuntimeException;
+import com.msh.frame.client.log.ErrorLog;
 import com.msh.frame.common.util.DateUtil;
 import com.msh.frame.interfaces.IdGenerateable;
+import com.msh.starter.id.generate.define.IdGenerateStringDef;
+import lombok.extern.slf4j.Slf4j;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -27,14 +31,16 @@ import java.util.concurrent.TimeUnit;
  * 启动个线程定时更新最后一次经过秒数
  *
  */
+@Slf4j
 public abstract class AbstractDateIdGenerate implements IdGenerateable {
-    final private static Object LOCK_OBJECT = new Object();
+    private static final Object LOCK_OBJECT = new Object();
+    private static final long ONE_DAY_SECOUND = 86400L;
     /**
      * 一天毫秒数共占多少个数字位
      * 一天 86400 秒
-     * 共占8位
+     * 共占5位
      */
-    final private int oneDayNumberMultiple = 100000;
+    private final int ONE_DAY_NUMBER_MULTIPLE = 100000;
     /**
      * 服务器id所占数字位数
      */
@@ -108,46 +114,30 @@ public abstract class AbstractDateIdGenerate implements IdGenerateable {
     @Override
     public long getUniqueID() {
         synchronized (LOCK_OBJECT){
-            long now= DateUtil.getPassDayMilliSecond()/1000;
-            if(now != lastPassDaySecond){
-                //如果当前经过时间 大于 最后一次获取的经过时间，说明第二天开始，重新获取日期开头
-                if(now < lastPassDaySecond){
-                    while(true) {
-                        Long dayLong = calculateDateFront();
-                        if (null != dayLong
-                                && dayLong != dateFront) {
-                            dateFront = dayLong;
-                            break;
-                        }
-                    }
+            //超过一天最多秒数,重新计算当天日期头
+            if(ONE_DAY_SECOUND <= lastPassDaySecond){
+                Long dayLong = calculateDateFront();
+                if (null != dayLong
+                        && dayLong != dateFront) {
+                    dateFront = dayLong;
+                    lastPassDaySecond = 0;
                 }
-                lastPassDaySecond = now;
-                i=0;
-                long destID = dateFront+ lastPassDaySecond *serviceIdNumberMultiple*indexNumberMultiple + serviceIdBitShiftValue  +lastIndex;
-                lastIndex++;
-                if(lastIndex > iMax){
-                    lastIndex=0;
+                //超过最大长度,抛出异常
+                if(ONE_DAY_NUMBER_MULTIPLE <= lastPassDaySecond){
+                    throw new ServerRuntimeException(
+                            new ErrorLog(null, this.getClass(),
+                                    "getUniqueID", null,
+                                    String.format(IdGenerateStringDef.LAST_PASS_DAY_SECOND_OUT_OF_MAX, lastPassDaySecond)));
                 }
-                return destID;
-
             }
-            if(i++>iMax){
-                i=0;
-                while (lastPassDaySecond == now){
-                    now=DateUtil.getPassDayMilliSecond()/1000;
-                }
-                //如果当前经过时间 大于 最后一次获取的经过时间，说明第二天开始，重新获取日期开头
-                if(now < lastPassDaySecond){
-                    while(true) {
-                        Long dayLong = calculateDateFront();
-                        if (null != dayLong
-                                && dayLong != dateFront) {
-                            dateFront = dayLong;
-                            break;
-                        }
-                    }
-                }
-                lastPassDaySecond=now;
+            long now= DateUtil.getPassDayMilliSecond()/1000;
+            if(now > lastPassDaySecond){
+                lastPassDaySecond = now;
+                i = 0;
+            }
+            if(i++ > iMax){
+                i = 0;
+                lastPassDaySecond ++;
             }
             long destID = dateFront+ lastPassDaySecond *serviceIdNumberMultiple*indexNumberMultiple + serviceIdBitShiftValue  +lastIndex;
             lastIndex++;
@@ -186,7 +176,7 @@ public abstract class AbstractDateIdGenerate implements IdGenerateable {
         try {
             DateFormat df =new SimpleDateFormat("yyMMdd");
             String day = df.format(new Date());
-            dayLong = Long.valueOf(day) * oneDayNumberMultiple * serviceIdNumberMultiple * indexNumberMultiple;
+            dayLong = Long.valueOf(day) * ONE_DAY_NUMBER_MULTIPLE * serviceIdNumberMultiple * indexNumberMultiple;
         }catch (Exception e){
 
         }

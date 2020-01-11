@@ -89,25 +89,15 @@ public abstract class AbstractIdGenerate implements IdGenerateable {
     @Override
     public synchronized long getUniqueID() {
         long now=System.currentTimeMillis();
-        if(now!=lastCurrentTimeMillis){
-            lastCurrentTimeMillis=now;
+        if(now > lastCurrentTimeMillis){
+            lastCurrentTimeMillis = now;
             i=0;
-            long destID =  now- ID_BEGIN_TIME;
-            destID = (destID << currentTimeMillisDiffBitCount) + lastIndexBit+ serviceIdBitShiftValue;
-            lastIndexBit++;
-            if(lastIndexBit>indexBit){
-                lastIndexBit=0;
-            }
-            return destID;
         }
-        if(i++>indexBit){
+        if(i++ > indexBit){
             i=0;
-            while (lastCurrentTimeMillis==now){
-                now=System.currentTimeMillis();
-            }
-            lastCurrentTimeMillis=now;
+            lastCurrentTimeMillis++;
         }
-        long destID =  now - ID_BEGIN_TIME;
+        long destID =  lastCurrentTimeMillis - ID_BEGIN_TIME;
         destID = (destID << currentTimeMillisDiffBitCount) + lastIndexBit + serviceIdBitShiftValue;
         lastIndexBit++;
         if(lastIndexBit>indexBit){
